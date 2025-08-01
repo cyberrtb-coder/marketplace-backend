@@ -8,10 +8,14 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const products = await Product.find({});
+    console.log(`✅ Products fetched: ${products.length}`);
     res.json(products);
   } catch (err) {
-    console.error('Error fetching products:', err);
-    res.status(500).json({ message: 'Error fetching products', error: err.message });
+    console.error('❌ Error fetching products:', err);
+    res.status(500).json({
+      message: 'Error fetching products',
+      error: err.message || err
+    });
   }
 });
 
