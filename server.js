@@ -1,34 +1,38 @@
-import express from "express";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import cors from "cors";
-
-import cartRoutes from "./routes/cart.js";
-import productsRoutes from "./routes/products.js"; // ✅ New route
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import productRoutes from './routes/productRoutes.js';
 
 dotenv.config();
+
 const app = express();
 
-app.use(cors());
+// ✅ Enable JSON body parsing
 app.use(express.json());
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+// ✅ Enable CORS for your frontend
+// For now, allow all origins for testing
+app.use(cors({
+  origin: '*', 
+  methods: ['GET','POST','PUT','DELETE'],
+}));
 
-// API Routes
-app.use("/api/cart", cartRoutes);
-app.use("/api/products", productsRoutes); // ✅ Products route
-
-// Test root route
-app.get("/", (req, res) => {
-  res.json({ message: "Marketplace backend running ✅" });
+// ✅ Root route for testing
+app.get('/', (req, res) => {
+  res.json({ message: 'Marketplace backend running ✅' });
 });
 
+// ✅ Product routes
+app.use('/api/products', productRoutes);
+
+// ✅ Connect to MongoDB and start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+  })
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
